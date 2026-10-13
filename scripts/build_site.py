@@ -25,7 +25,7 @@ icons.mkdir(exist_ok=True)
 for size in [192,512]:
     (icons / f'icon-{size}.png').write_bytes(png(size))
 (PUBLIC / '.nojekyll').touch()
-assets = sorted(p for p in PUBLIC.rglob('*') if p.is_file() and p.name not in ['release.js','sw.js','.nojekyll'])
+assets = sorted(p for p in PUBLIC.rglob('*') if p.is_file() and p.name not in ['release.js','sw.js','.nojekyll','.DS_Store'])
 digest = hashlib.sha256()
 digest.update((PUBLIC / 'sw.js').read_bytes())
 for p in assets:

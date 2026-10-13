@@ -1,4 +1,4 @@
-# Between the Lines
+# Syriac Parallel Reader
 
 A working, mobile-friendly Hebrew–Syriac parallel reader for **all 50 chapters of Genesis**. Built for static GitHub Pages hosting and installable/offline PWA use. Original interface and book icon; no proprietary Parallel Plus designs, code, or assets are included.
 
