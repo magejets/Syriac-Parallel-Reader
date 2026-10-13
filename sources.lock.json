@@ -1,0 +1,134 @@
+{
+  "repositories": {
+    "hebrew": {
+      "repo": "openscriptures/morphhb",
+      "revision": "3d15126fb1ef74867fc1434be1942e837932691f"
+    },
+    "syriac": {
+      "repo": "ETCBC/syriac",
+      "revision": "ded39ecaa145d3a6b0ec83fe24d0e00699cddb19"
+    },
+    "lexicon": {
+      "repo": "openscriptures/HebrewLexicon",
+      "revision": "21c9add13bc727d3a951361778e97e3ff7afd1ce"
+    },
+    "fonts": {
+      "repo": "google/fonts",
+      "revision": "bd8f81ddb5c74d5c8897b36ad88b440266245103"
+    }
+  },
+  "files": {
+    "Gen.xml": {
+      "url": "https://raw.githubusercontent.com/openscriptures/morphhb/3d15126fb1ef74867fc1434be1942e837932691f/wlc/Gen.xml",
+      "sha256": "0526e5c9a5fb4d907847645f954ed3d1268fa69decbd872056cedd2668d86449"
+    },
+    "hebrew-README.md": {
+      "url": "https://raw.githubusercontent.com/openscriptures/morphhb/3d15126fb1ef74867fc1434be1942e837932691f/README.md",
+      "sha256": "2da25acf89375558b843dab582bdf00833137baf1c8afe2b32cf09e251179999"
+    },
+    "syriac/otype.tf": {
+      "url": "https://raw.githubusercontent.com/ETCBC/syriac/ded39ecaa145d3a6b0ec83fe24d0e00699cddb19/tf/0.9/otype.tf",
+      "sha256": "7f6cb9c100105f978c6fe944199bc7968e8a015443ffe1e055517c7f498a0176"
+    },
+    "syriac/oslots.tf": {
+      "url": "https://raw.githubusercontent.com/ETCBC/syriac/ded39ecaa145d3a6b0ec83fe24d0e00699cddb19/tf/0.9/oslots.tf",
+      "sha256": "982d665685a0764f85c7d7fc5315a50e79c62a61e644da9d6fbee56518e81df9"
+    },
+    "syriac/book.tf": {
+      "url": "https://raw.githubusercontent.com/ETCBC/syriac/ded39ecaa145d3a6b0ec83fe24d0e00699cddb19/tf/0.9/book.tf",
+      "sha256": "4652c103d8135d7072df511c4f75d543a0ddd7b2096d4d6019493749e6cae34a"
+    },
+    "syriac/chapter.tf": {
+      "url": "https://raw.githubusercontent.com/ETCBC/syriac/ded39ecaa145d3a6b0ec83fe24d0e00699cddb19/tf/0.9/chapter.tf",
+      "sha256": "b19a3b5250b8ebd3f523125c46eae0c97acfe7159ca2e04c6f3cf7cddd4a6a85"
+    },
+    "syriac/verse.tf": {
+      "url": "https://raw.githubusercontent.com/ETCBC/syriac/ded39ecaa145d3a6b0ec83fe24d0e00699cddb19/tf/0.9/verse.tf",
+      "sha256": "f42ed97d08145aa8a187ce44c484ebe367392ef39a7f98b798da22f6e1313b1d"
+    },
+    "syriac/g_cons_utf8.tf": {
+      "url": "https://raw.githubusercontent.com/ETCBC/syriac/ded39ecaa145d3a6b0ec83fe24d0e00699cddb19/tf/0.9/g_cons_utf8.tf",
+      "sha256": "079f9538676376556170153f723377f1ad41bd0ed79797bff4078db79c364f96"
+    },
+    "syriac/lex.tf": {
+      "url": "https://raw.githubusercontent.com/ETCBC/syriac/ded39ecaa145d3a6b0ec83fe24d0e00699cddb19/tf/0.9/lex.tf",
+      "sha256": "91324530ae9d6c3e4d582d34d1162c0ea6de7c2884d8591a0bf14ce78922fe01"
+    },
+    "syriac/gloss.tf": {
+      "url": "https://raw.githubusercontent.com/ETCBC/syriac/ded39ecaa145d3a6b0ec83fe24d0e00699cddb19/tf/0.9/gloss.tf",
+      "sha256": "cae0f185cfb2372c4fbb72e266cec9397ce2a3489e198a46a01f2c840698e1b5"
+    },
+    "syriac/sp.tf": {
+      "url": "https://raw.githubusercontent.com/ETCBC/syriac/ded39ecaa145d3a6b0ec83fe24d0e00699cddb19/tf/0.9/sp.tf",
+      "sha256": "d9510184a02abb4272a54832a0d10d514b4a56660d61aa7c2a45a847ae69a7f9"
+    },
+    "syriac/vs.tf": {
+      "url": "https://raw.githubusercontent.com/ETCBC/syriac/ded39ecaa145d3a6b0ec83fe24d0e00699cddb19/tf/0.9/vs.tf",
+      "sha256": "8794b12e6b799aea4d955c81941968cbb70e137b8510daffd32192905140b485"
+    },
+    "syriac/vt.tf": {
+      "url": "https://raw.githubusercontent.com/ETCBC/syriac/ded39ecaa145d3a6b0ec83fe24d0e00699cddb19/tf/0.9/vt.tf",
+      "sha256": "b8cf1cf6606ba5af561d83d4ec5436f3982f7da2c8b11d5f76d957a7e5cabb76"
+    },
+    "syriac/gn.tf": {
+      "url": "https://raw.githubusercontent.com/ETCBC/syriac/ded39ecaa145d3a6b0ec83fe24d0e00699cddb19/tf/0.9/gn.tf",
+      "sha256": "5da8050176f1165275b8b9154f5c2b3e30b0d840cd02e2c267d033ccf948eb24"
+    },
+    "syriac/nu.tf": {
+      "url": "https://raw.githubusercontent.com/ETCBC/syriac/ded39ecaa145d3a6b0ec83fe24d0e00699cddb19/tf/0.9/nu.tf",
+      "sha256": "c5b48abaee749e7aada9cdd08c82e1948c17d4aadab5f2d7bf6711cfbb23b9da"
+    },
+    "syriac/ps.tf": {
+      "url": "https://raw.githubusercontent.com/ETCBC/syriac/ded39ecaa145d3a6b0ec83fe24d0e00699cddb19/tf/0.9/ps.tf",
+      "sha256": "dc1cc52446a86ae19b6f7dd9294cf9a8eb5423f6edef99b5d42bb4fdd4597e7a"
+    },
+    "syriac/st.tf": {
+      "url": "https://raw.githubusercontent.com/ETCBC/syriac/ded39ecaa145d3a6b0ec83fe24d0e00699cddb19/tf/0.9/st.tf",
+      "sha256": "91f1ee9f545587af9fc5596c80d600f50b2ef6387e14d7b3369b8d9e40bf4324"
+    },
+    "syriac/trailer.tf": {
+      "url": "https://raw.githubusercontent.com/ETCBC/syriac/ded39ecaa145d3a6b0ec83fe24d0e00699cddb19/tf/0.9/trailer.tf",
+      "sha256": "20f7bd232e29a454a103e69a74338b868de5579639aefeb061bdfdc42721e1f7"
+    },
+    "syriac-LICENSE": {
+      "url": "https://raw.githubusercontent.com/ETCBC/syriac/ded39ecaa145d3a6b0ec83fe24d0e00699cddb19/LICENSE",
+      "sha256": "e1ba236edded16aaf5493fed01928bc25460f4b5d3ad056922650cb9360f170e"
+    },
+    "syriac-README.md": {
+      "url": "https://raw.githubusercontent.com/ETCBC/syriac/ded39ecaa145d3a6b0ec83fe24d0e00699cddb19/README.md",
+      "sha256": "7a104ddc3f5650aaafac382cfcde8bb6277f0b0e7511ca9d661bc8b8eff1cdb8"
+    },
+    "AugIndex.xml": {
+      "url": "https://raw.githubusercontent.com/openscriptures/HebrewLexicon/21c9add13bc727d3a951361778e97e3ff7afd1ce/AugIndex.xml",
+      "sha256": "e7217ca8ff8ff3f21f9cf1bbe87411adf55f6aa88bcf5ed9ddc886cc6b160c5d"
+    },
+    "LexicalIndex.xml": {
+      "url": "https://raw.githubusercontent.com/openscriptures/HebrewLexicon/21c9add13bc727d3a951361778e97e3ff7afd1ce/LexicalIndex.xml",
+      "sha256": "8f7a605c58899d2f44430149c143c00903976e1e91232476677972a69e5bc85f"
+    },
+    "BrownDriverBriggs.xml": {
+      "url": "https://raw.githubusercontent.com/openscriptures/HebrewLexicon/21c9add13bc727d3a951361778e97e3ff7afd1ce/BrownDriverBriggs.xml",
+      "sha256": "2b52658a4323d91674cda4090ab8b3ebddfff640f4f18143c28300e80b2c38f8"
+    },
+    "readme.md": {
+      "url": "https://raw.githubusercontent.com/openscriptures/HebrewLexicon/21c9add13bc727d3a951361778e97e3ff7afd1ce/readme.md",
+      "sha256": "9a129c25674387c494571c3828aa3a8eb78459c165e275c313ae26994ce8ff22"
+    },
+    "NotoSansSyriac[wght].ttf": {
+      "url": "https://raw.githubusercontent.com/google/fonts/bd8f81ddb5c74d5c8897b36ad88b440266245103/ofl/notosanssyriac/NotoSansSyriac[wght].ttf",
+      "sha256": "775585cc3c12877115d588f70af3aa140c78cb440f9d42c98273bf05bed3f6b1"
+    },
+    "notosanssyriac-OFL.txt": {
+      "url": "https://raw.githubusercontent.com/google/fonts/bd8f81ddb5c74d5c8897b36ad88b440266245103/ofl/notosanssyriac/OFL.txt",
+      "sha256": "6442860dad2700aabece2ac7252680b1a5bfc0987cec1ca0c3d605ab8f0b7975"
+    },
+    "NotoSerifHebrew[wdth,wght].ttf": {
+      "url": "https://raw.githubusercontent.com/google/fonts/bd8f81ddb5c74d5c8897b36ad88b440266245103/ofl/notoserifhebrew/NotoSerifHebrew[wdth,wght].ttf",
+      "sha256": "93caef921360788dc3b0e32136bb26f16bc57717ec482d48fc7fd43820617165"
+    },
+    "notoserifhebrew-OFL.txt": {
+      "url": "https://raw.githubusercontent.com/google/fonts/bd8f81ddb5c74d5c8897b36ad88b440266245103/ofl/notoserifhebrew/OFL.txt",
+      "sha256": "9b9fe028b5ba74d231659a1bbaf0ed09b11e759d1ca6a070999e16d151616b47"
+    }
+  }
+}

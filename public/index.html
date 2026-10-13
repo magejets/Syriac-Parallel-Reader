@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#213f48">
+  <meta name="description" content="Read Genesis in Hebrew and Syriac, verse by verse, with offline reading.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icons/icon-192.png">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <link rel="stylesheet" href="./styles.css">
+  <title>Syriac Parallel Reader · Hebrew & Syriac</title>
+</head>
+<body>
+  <a class="skip" href="#reader">Skip to passage</a>
+  <header class="masthead">
+    <a class="brand" href="./"><span class="brand-mark" aria-hidden="true">Ⅱ</span><span>Syriac Parallel Reader</span></a>
+    <div class="header-actions"><button id="settings-button" aria-haspopup="dialog">Settings</button><button id="about" aria-haspopup="dialog">Info</button></div>
+  </header>
+  <main>
+    <div class="reader-heading"><h1 id="passage-title">Genesis <span>1</span></h1><div class="reading-progress"><span id="chapter-progress" aria-live="polite">0 of 31 verses read</span><span class="progress-divider" aria-hidden="true">·</span><span id="streak" aria-live="polite">0-day streak</span><span id="reading-save-status" role="status">Saved on this device</span></div></div>
+    <nav class="toolbar" aria-label="Passage navigation">
+      <label>Book<select id="book" disabled><option>Loading…</option></select></label>
+      <label>Chapter<select id="chapter" disabled><option>1</option></select></label>
+      <label>Verse<select id="verse" disabled><option>1</option></select></label>
+      <div class="chapter-buttons"><button id="previous" aria-label="Previous chapter" disabled>←</button><button id="next" aria-label="Next chapter" disabled>→</button></div>
+    </nav>
+    <div class="workspace">
+      <section id="reader" tabindex="-1" aria-label="Parallel passage">
+        <div class="column-heads"><div><span class="language-dot he-dot"></span><strong>Hebrew</strong><small>Masoretic · Westminster Leningrad Codex</small></div><div><span class="language-dot syr-dot"></span><strong>Syriac</strong><small>Peshitta · Estrangela · consonantal</small></div></div>
+        <p id="reader-status" role="status">Loading Genesis…</p>
+        <div id="verses"></div>
+        <footer class="passage-footer"><button id="next-bottom" disabled>Next chapter →</button></footer>
+      </section>
+      <aside id="study" aria-labelledby="study-title">
+        <div class="panel-top"><p class="eyebrow">WORD STUDY</p><button id="close-study" aria-label="Close word study" hidden>×</button></div>
+        <h2 id="study-title">A closer look</h2>
+        <div id="study-content"><div class="empty-study"><span aria-hidden="true">א · ܐ</span><p>Select any word in either text.</p><small>Explore its lemma, morphology and other occurrences in Genesis.</small></div><div class="study-note"><strong>Read with context</strong><p>Verse pairs share a reference. They do not imply a one-to-one correspondence between words.</p></div></div>
+      </aside>
+    </div>
+  </main>
+  <dialog id="settings" aria-labelledby="settings-title"><button class="dialog-close" id="close-settings" aria-label="Close settings">×</button><p class="eyebrow">READING PREFERENCES</p><h2 id="settings-title">Settings</h2><label class="dialog-check"><input id="stack" type="checkbox"> Stack texts</label><label class="dialog-check"><input id="accents" type="checkbox" checked> Show Hebrew accents</label><label class="size-label">Text size<input id="size" type="range" min="22" max="40" value="29" aria-label="Text size"></label></dialog>
+  <dialog id="info" aria-labelledby="info-title"><button class="dialog-close" id="close-info" aria-label="Close information">×</button><p class="eyebrow">ABOUT THIS READER</p><h2 id="info-title">Two traditions. One place to read.</h2><p>Read the Hebrew and Syriac texts of Genesis together, verse by verse. Tap a word to explore its language. Verse pairs share a reference; they do not imply a word-for-word alignment.</p><p>On a phone, turn on <strong>Stack texts</strong> in Settings for wider lines. Hebrew shows the written form (ketiv); recorded qere readings appear in word study. Syriac is consonantal, without supplied vowels.</p><p>Reading progress and streaks are saved only in this browser on this device.</p><div class="info-actions"><a href="./SOURCES.html">Sources, editions & licensing →</a><button id="install" hidden>Install app</button><span id="offline-status" role="status">Preparing offline reading…</span></div></dialog>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
