@@ -34,8 +34,8 @@ for p in assets:
 release = digest.hexdigest()[:16]
 def offline_asset(path):
     relative = path.relative_to(PUBLIC).as_posix()
-    return not (relative.startswith('data/lexicon/') or relative == 'data/occurrences.json')
+    return not (relative.startswith('data/text/') or relative.startswith('data/lexical/') or relative.endswith(('.sqlite', '.sqlite.gz')))
 offline_assets = [p for p in assets if offline_asset(p)]
 paths = ['./'+p.relative_to(PUBLIC).as_posix() for p in offline_assets]
 (PUBLIC / 'release.js').write_text(f'self.RELEASE = {json.dumps(release)};\nself.PRECACHE = {json.dumps(paths)};\n')
-print(f'Release {release}: {len(offline_assets)} offline assets, {sum(p.stat().st_size for p in offline_assets)/1024**2:.1f} MiB; dictionaries/concordances online only')
+print(f'Release {release}: {len(offline_assets)} offline assets, {sum(p.stat().st_size for p in offline_assets)/1024**2:.1f} MiB; corpus and database files load on demand')

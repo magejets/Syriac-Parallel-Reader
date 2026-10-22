@@ -35,7 +35,7 @@ self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   if (event.request.method !== 'GET' || url.origin !== self.location.origin || !url.href.startsWith(self.registration.scope)) return;
   const path = url.href.slice(self.registration.scope.length).split('?')[0];
-  if (path.startsWith('data/lexicon/') || path === 'data/occurrences.json') {
+  if (path.startsWith('data/lexical/')) {
     event.respondWith(fetch(event.request, {cache:'no-store'}));
     return;
   }

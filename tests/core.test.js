@@ -30,7 +30,7 @@ test('word study defaults to the lexical component after attached prefixes',()=>
 test('BDB loads a single static shard and rejects malformed paths',async()=>{
   const paths=[];const provider=new StaticBdbProvider(async p=>{paths.push(p);return {'b.cw.aa':{body:'create'}};});
   assert.equal((await provider.resolve({bdb:'b.cw.aa'})).body,'create');
-  assert.deepEqual(paths,['data/lexicon/bdb/b.json']);
+  assert.deepEqual(paths,['data/lexical/bdb/b.json']);
   assert.equal(await provider.resolve({bdb:'../secret'}),null);
 });
 test('Sefaria provider passes verse context and exposes metadata without remote HTML',async()=>{

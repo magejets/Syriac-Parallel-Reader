@@ -4,10 +4,21 @@ import {consonantTransliteration} from './transliteration.js';
 const $ = id => document.getElementById(id);
 const memo = new Map();
 async function load(path) {
-  if (!memo.has(path)) memo.set(path, fetch(new URL(path, import.meta.url)).then(r => {
-    if (!r.ok) throw new Error(`Could not load ${path}`);
-    return r.json();
-  }).catch(e => {memo.delete(path); throw e;}));
+  if (!memo.has(path)) memo.set(path, (async () => {
+    const compressible = path.startsWith('data/text/') || path.startsWith('data/lexical/');
+    if (compressible && 'DecompressionStream' in globalThis) {
+      try {
+        const compressed = await fetch(new URL(`${path}.gz`, import.meta.url));
+        if (compressed.ok && compressed.body) {
+          const body = compressed.body.pipeThrough(new DecompressionStream('gzip'));
+          return await new Response(body).json();
+        }
+      } catch {}
+    }
+    const response = await fetch(new URL(path, import.meta.url));
+    if (!response.ok) throw new Error(`Could not load ${path}`);
+    return response.json();
+  })().catch(e => {memo.delete(path); throw e;}));
   return memo.get(path);
 }
 function node(tag, text, className) {
@@ -75,7 +86,8 @@ async function navigate(target, scroll = true) {
   $('reader-status').hidden = false;$('reader-status').textContent = 'Loading passage…';
   $('previous').disabled = $('next').disabled = $('next-bottom').disabled = true;
   try {
-    const data = await load(`data/chapters/${target.book}.${target.chapter}.json`);
+    const bookInfo = catalog.books.find(book => book.id === target.book);
+    const data = await load(`data/text/${bookInfo.slug}/${target.chapter}.json`);
     if (sequence !== navigationId) return;
     location = target; rows = data;
     const book = catalog.books.find(b => b.id === location.book);
@@ -85,8 +97,11 @@ async function navigate(target, scroll = true) {
     document.title = `${book.name} ${location.chapter} · Between the Lines`;
     renderPassage();$('reader-status').hidden = true;
     updateReadingSummary();
-    $('previous').disabled = location.chapter <= 1;
-    $('next').disabled = $('next-bottom').disabled = !book.chapters[location.chapter + 1];
+    const bookIndex = catalog.books.findIndex(item => item.id === location.book);
+    const chapterNumbers = Object.keys(book.chapters).map(Number).sort((a,b) => a-b);
+    const chapterIndex = chapterNumbers.indexOf(location.chapter);
+    $('previous').disabled = bookIndex === 0 && chapterIndex === 0;
+    $('next').disabled = $('next-bottom').disabled = bookIndex === catalog.books.length - 1 && chapterIndex === chapterNumbers.length - 1;
     selectVerse(location.verse, scroll && location.verse > 1);
     if (scroll && location.verse === 1) $('passage-title').scrollIntoView({block:'start'});
   } catch (error) {
@@ -99,21 +114,22 @@ function renderPassage() {
   const fragment = document.createDocumentFragment();
   for (const row of rows) {
     const article = node('article', null, `verse-row${readVerses.has(row.id) ? ' read' : ''}`); article.id = `verse-${row.verse}`;article.dataset.verse = row.verse;article.dataset.ref = row.id;
-    article.setAttribute('aria-label', `Genesis ${location.chapter}:${row.verse}`);
+    const book = catalog.books.find(b => b.id === location.book);
+    article.setAttribute('aria-label', `${book.name} ${location.chapter}:${row.verse}`);
     const meta = node('div', null, 'verse-meta');
     meta.append(node('span', `${location.chapter}:${row.verse}`, 'verse-number'));
     const readLabel = node('label', null, 'read-check');
-    const readInput = node('input');readInput.type = 'checkbox';readInput.checked = readVerses.has(row.id);readInput.setAttribute('aria-label', `Read Genesis ${location.chapter}:${row.verse}`);
+    const readInput = node('input');readInput.type = 'checkbox';readInput.checked = readVerses.has(row.id);readInput.setAttribute('aria-label', `Read ${book.name} ${location.chapter}:${row.verse}`);
     readInput.onchange = () => markVerse(row.id, readInput.checked);
     readLabel.append(readInput, node('span', 'Read'));
     meta.append(readLabel);article.append(meta);
     for (const language of ['he','syr']) {
       const side = node('div', null, 'verse-side');side.dataset.label = language === 'he' ? 'HEBREW' : 'SYRIAC';
       const script = node('div', null, `script ${language}`);script.dir = 'rtl';script.lang = language === 'he' ? 'he' : 'syr';
-      if (!row[language].length) script.append(node('span', 'No corresponding verse supplied.', 'missing'));
+      if (!row[language].length) script.append(node('span', 'This verse is not found in this source.', 'missing'));
       row[language].forEach((word, index) => {
         const button = node('button', language === 'he' && !$('accents').checked ? stripAccents(word.text) : word.text, 'word');
-        button.dataset.word = `${row.id}/${language}/${index}`;button.setAttribute('aria-label', `${word.text}, word study, Genesis ${location.chapter}:${row.verse}`);
+        button.dataset.word = `${row.id}/${language}/${index}`;button.setAttribute('aria-label', `${word.text}, word study, ${book.name} ${location.chapter}:${row.verse}`);
         button.onclick = () => {selectVerse(row.verse, false);openStudy(row, language, index, button);};
         script.append(button, node('span', word.after, 'punct'));
       });
@@ -130,7 +146,8 @@ async function openStudy(row, language, index, button, component) {
   selectedButton = button;button.classList.add('selected');
   study.classList.add('open');$('close-study').hidden = false;
   study.scrollTop = 0;
-  $('study-title').textContent = `${language === 'he' ? 'Hebrew' : 'Syriac'} · ${location.chapter}:${row.verse}`;
+  const bookName = catalog.books.find(item => item.id === location.book)?.name || location.book;
+  $('study-title').textContent = `${language === 'he' ? 'Hebrew' : 'Syriac'} · ${bookName} ${location.chapter}:${row.verse}`;
   const content = $('study-content'), word = row[language][index];
   const showWord = () => {
     content.replaceChildren(node('div', word.text, `study-word ${language}`));
@@ -138,27 +155,28 @@ async function openStudy(row, language, index, button, component) {
     transliteration.dir = 'ltr';content.append(transliteration);
     content.append(node('p', 'Unvocalized spelling aid; vowels and pronunciation are not reconstructed.', 'meta'));
   };
-  showWord();content.append(node('p', 'Loading online word study…', 'meta'));
+  showWord();content.append(node('p', 'Loading word study…', 'meta'));
   try {
-    const [lexicon, occurrenceIndex] = await Promise.all([load('data/lexicon/index.json'), load('data/occurrences.json')]);
+    const [lexicon, occurrenceIndex] = await Promise.all([load('data/lexical/index.json'), load(`data/lexical/occurrences/${location.book}.json`)]);
     if (sequence !== studyId) return;
     component ??= defaultComponent(word, language);
-    const lid = word.lemmas[component], lemma = lexicon[lid];
+    const lid = word.lemmas?.[component], lemma = lid ? lexicon[lid] : null;
     showWord();
     const choices = node('div', null, 'lemma-choices');
     word.lemmas.forEach((id, i) => {const choice = node('button', word.parts?.[i]?.text || lexicon[id]?.headword || id);choice.setAttribute('aria-pressed', String(i === component));choice.onclick = () => openStudy(row, language, index, button, i);choices.append(choice);});
     if (word.lemmas.length > 1) {content.append(node('p', 'Choose a word component:', 'meta'), choices);}
     content.append(node('p', lemma?.gloss || 'No gloss supplied', 'gloss'));
-    content.append(node('p', `Lemma: ${lemma?.headword || lid}${language === 'syr' ? ' (ETCBC transcription)' : ''}`, 'meta'));
+    if (lemma || lid) content.append(node('p', `Lemma: ${lemma?.headword || lid}${language === 'syr' ? ' (ETCBC transcription)' : ''}`, 'meta'));
+    else if (language === 'syr') content.append(node('p', 'No word-level lexical analysis is supplied for this word.', 'meta'));
     if (lemma?.transliteration) content.append(node('p', `Lexicon transliteration: ${lemma.transliteration}`, 'meta'));
     if (word.qere) content.append(node('p', `Written form (ketiv). Recorded reading (qere): ${word.qere}`, 'meta'));
     const grammar = section('Morphology');
     if (language === 'he') {grammar.append(node('p', `${word.morphology} · Open Scriptures code`));const link = node('a','Code guide ↗');link.href='https://hb.openscriptures.org/parsing/HebrewMorphologyCodes.html';link.target='_blank';link.rel='noopener noreferrer';grammar.append(link);}
-    else {
+    else if (word.parts?.[component]) {
       const labels = {sp:'Part of speech',vs:'Stem',vt:'Tense',gn:'Gender',nu:'Number',ps:'Person',st:'State'};
       const values = {subs:'noun',verb:'verb',prep:'preposition',conj:'conjunction',adjv:'adjective',advb:'adverb',nmpr:'proper name',sg:'singular',pl:'plural',m:'masculine',f:'feminine',pe:'Peal',pa:'Pael',ap:'Aphel',pf:'perfect',ipf:'imperfect',emph:'emphatic',cst:'construct',abs:'absolute'};
       for (const [key, value] of Object.entries(word.parts[component].morphology)) grammar.append(node('p', `${labels[key]}: ${values[value] || value}`));
-    }
+    } else grammar.append(node('p', 'No word-level morphology is supplied for this word.'));
     content.append(grammar);
     if (language === 'he' && lemma?.bdb) {
       const details = node('details', null, 'study-section');details.append(node('summary', 'Read bundled BDB entry'));
@@ -198,17 +216,18 @@ async function openStudy(row, language, index, button, component) {
   }
 }
 function occurrenceSection(title, hits, language) {
-  const s = section(`${title} · ${hits.length} tokens in Genesis`), verses = occurrenceVerses(hits);
+  const bookName = catalog.books.find(b => b.id === location.book)?.name || location.book;
+  const s = section(`${title} · ${hits.length} tokens in ${bookName}`), verses = occurrenceVerses(hits);
   s.append(node('p', `${verses.length} verses · select a reference to read its pair.`, 'meta'));
   const list = node('div', null, 'occurrences');
   let shown = 0;
   const more = node('button', 'Show more verses');
   function appendMore() {
     for (const hit of verses.slice(shown,shown+30)) {
-      const [book, chapter, verse] = hit.ref.split('.');const button=node('button',`Genesis ${chapter}:${verse} `);
+      const [book, chapter, verse] = hit.ref.split('.');const bookName=catalog.books.find(b=>b.id===book)?.name || book;const button=node('button',`${bookName} ${chapter}:${verse} `);
       const sample=node('bdi',hit.text);sample.dir='rtl';button.append(sample);
       button.onclick = async () => {
-        if (Number(chapter) !== location.chapter) await navigate({book,chapter:Number(chapter),verse:Number(verse)});
+        if (book !== location.book || Number(chapter) !== location.chapter) await navigate({book,chapter:Number(chapter),verse:Number(verse)});
         else {hideStudy();selectVerse(Number(verse));}
         const target=document.querySelector(`[data-word="${hit.ref}/${language}/${hit.word}"]`);
         target?.classList.add('selected');target?.focus({preventScroll:true});
@@ -219,10 +238,22 @@ function occurrenceSection(title, hits, language) {
   }
   more.onclick=appendMore;appendMore();s.append(list,more);return s;
 }
+function adjacentChapter(direction) {
+  const bookIndex = catalog.books.findIndex(book => book.id === location.book);
+  const current = catalog.books[bookIndex];
+  const chapters = Object.keys(current.chapters).map(Number).sort((a,b) => a-b);
+  const index = chapters.indexOf(location.chapter) + direction;
+  if (chapters[index] !== undefined) return {book: current.id, chapter: chapters[index], verse: 1};
+  const other = catalog.books[bookIndex + direction];
+  if (!other) return location;
+  const otherChapters = Object.keys(other.chapters).map(Number).sort((a,b) => a-b);
+  return {book: other.id, chapter: direction > 0 ? otherChapters[0] : otherChapters.at(-1), verse: 1};
+}
 $('chapter').onchange=()=>navigate({...location,chapter:Number($('chapter').value),verse:1});
 $('book').onchange=()=>navigate({book:$('book').value,chapter:1,verse:1});
 $('verse').onchange=()=>selectVerse(Number($('verse').value));
-for (const id of ['next','next-bottom','previous']) $(id).onclick=()=>navigate({...location,chapter:location.chapter+(id==='previous'?-1:1),verse:1});
+$('previous').onclick=()=>navigate(adjacentChapter(-1));
+for (const id of ['next','next-bottom']) $(id).onclick=()=>navigate(adjacentChapter(1));
 $('stack').checked=read('between-lines-stack')==='true';reader.classList.toggle('stacked',$('stack').checked);
 $('stack').onchange=()=>{reader.classList.toggle('stacked',$('stack').checked);save('between-lines-stack',$('stack').checked);};
 $('accents').checked=read('between-lines-accents')!=='false';
@@ -246,7 +277,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)updateRead
 async function offline() {
   if (!('serviceWorker' in navigator)) {$('offline-status').textContent='Offline installation unavailable';return;}
   try {
-    navigator.serviceWorker.addEventListener('message',e=>{if(e.data?.type==='OFFLINE_READY')$('offline-status').textContent='Genesis available offline';});
+    navigator.serviceWorker.addEventListener('message',e=>{if(e.data?.type==='OFFLINE_READY')$('offline-status').textContent='Reader shell ready · text requires internet';});
     const registration=await navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'});
     const observeWorker = worker => worker?.addEventListener('statechange',()=>{
       if(worker.state==='installed'&&navigator.serviceWorker.controller)$('offline-status').textContent='Update ready · close all app tabs and reopen';
