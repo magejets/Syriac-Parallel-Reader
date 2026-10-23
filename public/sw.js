@@ -30,6 +30,7 @@ self.addEventListener('activate', event => {
 });
 self.addEventListener('message', event => {
   if (event.data?.type === 'STATUS') event.source?.postMessage({type:'OFFLINE_READY'});
+  if (event.data?.type === 'ACTIVATE_UPDATE') event.waitUntil(self.skipWaiting());
 });
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);

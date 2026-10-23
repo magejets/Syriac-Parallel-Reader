@@ -18,10 +18,10 @@
     <a class="brand" href="./"><span class="brand-mark" aria-hidden="true">Ⅱ</span><span>Syriac Parallel Reader</span></a>
     <div class="header-actions"><button id="settings-button" aria-haspopup="dialog">Settings</button><button id="about" aria-haspopup="dialog">Info</button></div>
   </header>
-  <main>1
+  <main>
     <div class="reader-heading"><h1 id="passage-title">Genesis <span>1</span></h1><div class="reading-progress"><span id="chapter-progress" aria-live="polite">0 of 31 verses read</span><span class="progress-divider" aria-hidden="true">·</span><span id="streak" aria-live="polite">0-day streak</span><span id="reading-save-status" role="status">Saved on this device</span></div></div>
     <nav class="toolbar" aria-label="Passage navigation">
-      <label>Book<select id="book" disabled><option>Loading…</option></select></label>
+      <label>Book<span class="book-picker"><input id="book" type="search" autocomplete="off" placeholder="Search books…" role="combobox" aria-autocomplete="list" aria-controls="book-options" aria-expanded="false" disabled><div id="book-options" role="listbox" hidden></div></span></label>
       <label>Chapter<select id="chapter" disabled><option>1</option></select></label>
       <label>Verse<select id="verse" disabled><option>1</option></select></label>
       <div class="chapter-buttons"><button id="previous" aria-label="Previous chapter" disabled>←</button><button id="next" aria-label="Next chapter" disabled>→</button></div>
@@ -40,6 +40,7 @@
       </aside>
     </div>
   </main>
+  <div id="update-notice" role="status" hidden>Reader update ready <button id="reload-update">Reload to use it</button></div>
   <dialog id="settings" aria-labelledby="settings-title"><button class="dialog-close" id="close-settings" aria-label="Close settings">×</button><p class="eyebrow">READING PREFERENCES</p><h2 id="settings-title">Settings</h2><label class="dialog-check"><input id="stack" type="checkbox"> Stack texts</label><label class="dialog-check"><input id="accents" type="checkbox" checked> Show Hebrew accents</label><label class="size-label">Text size<input id="size" type="range" min="22" max="40" value="29" aria-label="Text size"></label></dialog>
   <dialog id="info" aria-labelledby="info-title"><button class="dialog-close" id="close-info" aria-label="Close information">×</button><p class="eyebrow">ABOUT THIS READER</p><h2 id="info-title">Two traditions. One place to read.</h2><p>Read the 39 books of the Jewish canon in Hebrew, alongside the complete Syriac Peshitta text from ETCBC. Tap a word to explore its language. Verses share a row only when their source reference labels match; this does not imply word-for-word alignment. Source-only references are retained.</p><p>On a phone, turn on <strong>Stack texts</strong> in Settings for wider lines. Hebrew shows the written form (ketiv); recorded qere readings appear in word study. Syriac is consonantal, without supplied vowels.</p><p>Reading progress and streaks are saved only in this browser on this device.</p><div class="info-actions"><a href="./SOURCES.html">Sources, editions & licensing →</a><button id="install" hidden>Install app</button><span id="offline-status" role="status">Passages load when online</span></div></dialog>
   <script type="module" src="./app.js"></script>

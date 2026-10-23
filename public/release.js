@@ -1,2 +1,2 @@
-self.RELEASE = "a6bbb9bf3f16ef4d";
+self.RELEASE = "7c1b9463e3570ca9";
 self.PRECACHE = ["./SOURCES.html", "./app.js", "./core.js", "./data/alignment-report.json", "./data/catalog.json", "./data/sources.lock.json", "./fonts/Hebrew-OFL.txt", "./fonts/NotoSansSyriac.ttf", "./fonts/NotoSerifHebrew.ttf", "./fonts/Syriac-OFL.txt", "./icons/icon-192.png", "./icons/icon-512.png", "./index.html", "./manifest.webmanifest", "./providers.js", "./styles.css", "./transliteration.js"];

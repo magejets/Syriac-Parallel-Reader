@@ -32,7 +32,7 @@ function read(key) {try {return localStorage.getItem(key);} catch {return null;}
 function storedArray(key) {
   try {const value = JSON.parse(read(key) || '[]');return Array.isArray(value) ? value.filter(v => typeof v === 'string') : [];} catch {return [];}
 }
-let catalog, location, rows = [], navigationId = 0, studyId = 0, selectedButton, installPrompt;
+let catalog, location, rows = [], navigationId = 0, studyId = 0, selectedButton, installPrompt, activeBookOption = -1;
 const readVerses = new Set(storedArray('between-lines-read-verses'));
 const readingDays = new Set(storedArray('between-lines-reading-days').filter(v => /^\d{4}-\d{2}-\d{2}$/.test(v)));
 const bdb = new StaticBdbProvider(load), sefaria = new SefariaProvider();
@@ -66,6 +66,56 @@ function options(select, values, value) {
   select.replaceChildren(...values.map(([id, title]) => {const o = node('option', title);o.value = id;return o;}));
   select.value = value;select.disabled = false;
 }
+function bookOptions(books, currentId) {
+  const input = $('book'), list = $('book-options');
+  input.value = books.find(book => book.id === currentId)?.name || '';
+  input.disabled = false;
+  list.hidden = true;input.setAttribute('aria-expanded','false');input.removeAttribute('aria-activedescendant');
+  if (input.dataset.pickerReady) return;
+  input.dataset.pickerReady = 'true';
+  const render = (query = '', highlightFirst = false) => {
+    const normalized = query.trim().toLocaleLowerCase();
+    const matches = catalog.books.filter(book => `${book.name} ${book.id}`.toLocaleLowerCase().includes(normalized));
+    activeBookOption = highlightFirst && matches.length ? 0 : -1;
+    list.replaceChildren(...(matches.length ? matches.map((book,index) => {
+      const option = node('div',book.name,'book-option');
+      option.id = `book-option-${index}`;option.setAttribute('role','option');option.setAttribute('aria-selected',index===activeBookOption?'true':'false');
+      option.onmousedown = event => event.preventDefault();
+      option.onclick = () => chooseBook(book);
+      return option;
+    }) : [node('div','No matching books','book-empty')]));
+    list.hidden = false;input.setAttribute('aria-expanded','true');
+    input.removeAttribute('aria-activedescendant');
+    if (activeBookOption >= 0) input.setAttribute('aria-activedescendant',`book-option-${activeBookOption}`);
+  };
+  const close = (restore = true) => {
+    list.hidden = true;input.setAttribute('aria-expanded','false');input.removeAttribute('aria-activedescendant');
+    if (restore && location) input.value = catalog.books.find(book => book.id === location.book)?.name || '';
+  };
+  function chooseBook(book) {
+    input.value = book.name;list.hidden = true;input.setAttribute('aria-expanded','false');input.removeAttribute('aria-activedescendant');
+    if (location && location.book !== book.id) navigate({book:book.id,chapter:1,verse:1});
+  }
+  function moveActive(direction) {
+    const options = [...list.querySelectorAll('[role="option"]')];
+    if (!options.length) return;
+    activeBookOption = Math.max(0,Math.min(options.length-1,activeBookOption < 0 ? (direction > 0 ? 0 : options.length-1) : activeBookOption+direction));
+    options.forEach((option,index)=>option.setAttribute('aria-selected',index===activeBookOption?'true':'false'));
+    input.setAttribute('aria-activedescendant',options[activeBookOption].id);options[activeBookOption].scrollIntoView({block:'nearest'});
+  }
+  input.addEventListener('focus',()=>{input.select();render();});
+  input.addEventListener('click',()=>{input.select();render();});
+  input.addEventListener('input',()=>render(input.value,true));
+  input.addEventListener('keydown',event=>{
+    if (event.key==='ArrowDown'||event.key==='ArrowUp') {event.preventDefault();if(list.hidden)render();moveActive(event.key==='ArrowDown'?1:-1);}
+    else if (event.key==='Enter'&&!list.hidden) {
+      event.preventDefault();
+      const option=list.querySelectorAll('[role="option"]')[activeBookOption];
+      if (option) chooseBook(catalog.books.find(book=>book.name===option.textContent));
+    } else if (event.key==='Escape'&&!list.hidden) {event.preventDefault();close();}
+  });
+  input.addEventListener('blur',()=>setTimeout(()=>close(),120));
+}
 function remember() {
   const hash = `#${location.book}.${location.chapter}.${location.verse}`;
   history.replaceState(null, '', hash);save('between-lines-location', hash);
@@ -91,6 +141,7 @@ async function navigate(target, scroll = true) {
     if (sequence !== navigationId) return;
     location = target; rows = data;
     const book = catalog.books.find(b => b.id === location.book);
+    bookOptions(catalog.books, book.id);
     options($('chapter'), Object.keys(book.chapters).map(c => [c,c]), location.chapter);
     options($('verse'), book.chapters[location.chapter].map(v => [v,v]), location.verse);
     $('passage-title').replaceChildren(document.createTextNode(`${book.name} `), node('span', location.chapter));
@@ -250,7 +301,14 @@ function adjacentChapter(direction) {
   return {book: other.id, chapter: direction > 0 ? otherChapters[0] : otherChapters.at(-1), verse: 1};
 }
 $('chapter').onchange=()=>navigate({...location,chapter:Number($('chapter').value),verse:1});
-$('book').onchange=()=>navigate({book:$('book').value,chapter:1,verse:1});
+$('reload-update').onclick=()=>{
+  const waiting = navigator.serviceWorker.getRegistration().then(registration => registration?.waiting);
+  waiting.then(worker=>{
+    if (!worker) {window.location.reload();return;}
+    navigator.serviceWorker.addEventListener('controllerchange',()=>window.location.reload(),{once:true});
+    worker.postMessage({type:'ACTIVATE_UPDATE'});
+  });
+};
 $('verse').onchange=()=>selectVerse(Number($('verse').value));
 $('previous').onclick=()=>navigate(adjacentChapter(-1));
 for (const id of ['next','next-bottom']) $(id).onclick=()=>navigate(adjacentChapter(1));
@@ -279,18 +337,22 @@ async function offline() {
   try {
     navigator.serviceWorker.addEventListener('message',e=>{if(e.data?.type==='OFFLINE_READY')$('offline-status').textContent='Reader shell ready · text requires internet';});
     const registration=await navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'});
+    const showUpdate = () => {
+      if(navigator.serviceWorker.controller){$('offline-status').textContent='Update ready · reload to use it';$('update-notice').hidden=false;}
+    };
     const observeWorker = worker => worker?.addEventListener('statechange',()=>{
-      if(worker.state==='installed'&&navigator.serviceWorker.controller)$('offline-status').textContent='Update ready · close all app tabs and reopen';
+      if(worker.state==='installed'&&navigator.serviceWorker.controller)showUpdate();
       if(worker.state==='redundant')$('offline-status').textContent='Offline setup failed · reload to retry';
     });
     observeWorker(registration.installing);
     registration.addEventListener('updatefound',()=>observeWorker(registration.installing));
+    if(registration.waiting)showUpdate();
     const ready=await navigator.serviceWorker.ready;
     ready.active?.postMessage({type:'STATUS'});
   } catch {$('offline-status').textContent='Online reading · offline setup unavailable';}
 }
 try {
-  catalog=await load('data/catalog.json');options($('book'),catalog.books.map(b=>[b.id,b.name]),catalog.books[0].id);
+  catalog=await load('data/catalog.json');bookOptions(catalog.books,catalog.books[0].id);
   const initial=parseLocation(window.location.hash || read('between-lines-location') || '',catalog);
   await navigate(initial,initial.verse > 1);
   offline();
